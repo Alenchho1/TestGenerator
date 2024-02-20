@@ -1,0 +1,235 @@
+@model TestGenerator.ViewModels.QuestionViewModel
+
+@{
+    ViewData["Title"] = "Edit Question";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0"><i class="bi bi-pencil"></i> Edit Question</h2>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="questionForm" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">Question Text</label>
+                        <textarea asp-for="Content" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="Type" class="form-label">Question Type</label>
+                            <select asp-for="Type" class="form-select" onchange="toggleAnswerSection()">
+                                <option value="@TestGenerator.Models.QuestionType.MultipleChoice">Multiple Choice</option>
+                                <option value="@TestGenerator.Models.QuestionType.OpenEnded">Open Ended</option>
+                            </select>
+                            <span asp-validation-for="Type" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="CategoryId" class="form-label">Category</label>
+                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+                                <option value="">Select Category</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="Points" class="form-label">Points</label>
+                            <input asp-for="Points" class="form-control" type="number" min="1" max="100" />
+                            <span asp-validation-for="Points" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DifficultyLevel" class="form-label">Difficulty Level</label>
+                        <div class="star-rating">
+                            @for (int i = 5; i >= 1; i--)
+                            {
+                                <input type="radio" id="star@(i)" name="DifficultyLevel" value="@i" @(Model.DifficultyLevel == i ? "checked" : "") />
+                                <label for="star@(i)" title="@i stars">★</label>
+                            }
+                        </div>
+                        <span asp-validation-for="DifficultyLevel" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Keywords" class="form-label">Keywords</label>
+                        <input asp-for="Keywords" class="form-control" placeholder="Enter keywords separated by commas" />
+                        <span asp-validation-for="Keywords" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Image" class="form-label">Question Image</label>
+                        <div class="input-group">
+                            <input asp-for="Image" class="form-control" type="file" accept="image/*" onchange="previewImage(event)" />
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.ExistingImagePath))
+                        {
+                            <div class="mt-2">
+                                <img src="@Model.ExistingImagePath" alt="Current Image" class="img-fluid rounded" style="max-height: 200px" />
+                            </div>
+                        }
+                        <div id="imagePreview" class="mt-2 d-none">
+                            <img src="#" class="img-fluid rounded" style="max-height: 200px" />
+                        </div>
+                        <small class="text-muted">Upload a new image if you want to replace the current one (optional)</small>
+                    </div>
+
+                    <div id="multipleChoiceSection">
+                        <h5 class="mb-3">Answer Options</h5>
+                        <div id="answerContainer">
+                            @for (int i = 0; i < Math.Max(4, Model.Answers?.Count ?? 0); i++)
+                            {
+                                var answer = i < (Model.Answers?.Count ?? 0) ? Model.Answers[i] : new TestGenerator.ViewModels.AnswerViewModel();
+                                <div class="card mb-2">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col">
+                                                <input type="text" class="form-control" 
+                                                       name="Answers[@i].Content" 
+                                                       value="@answer.Content"
+                                                       placeholder="Answer option @(i + 1)" />
+                                            </div>
+                                            <div class="col-auto">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" 
+                                                           name="correctAnswerIndex" value="@i"
+                                                           @(answer.IsCorrect ? "checked" : "")
+                                                           onchange="updateCorrectAnswer(@i)" />
+                                                    <label class="form-check-label">Correct</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div id="openEndedSection" style="display: none;">
+                        <div class="mb-3">
+                            <label asp-for="CorrectAnswer" class="form-label">Correct Answer</label>
+                            <textarea asp-for="CorrectAnswer" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="CorrectAnswer" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function previewImage(event) {
+            const preview = document.querySelector('#imagePreview img');
+            const previewContainer = document.querySelector('#imagePreview');
+            const file = event.target.files[0];
+            
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                previewContainer.classList.remove('d-none');
+            } else {
+                preview.src = '#';
+                previewContainer.classList.add('d-none');
+            }
+        }
+
+        function toggleAnswerSection() {
+            const type = document.getElementById('Type').value;
+            const multipleChoiceSection = document.getElementById('multipleChoiceSection');
+            const openEndedSection = document.getElementById('openEndedSection');
+
+            if (type === '@TestGenerator.Models.QuestionType.MultipleChoice') {
+                multipleChoiceSection.style.display = 'block';
+                openEndedSection.style.display = 'none';
+            } else {
+                multipleChoiceSection.style.display = 'none';
+                openEndedSection.style.display = 'block';
+            }
+        }
+
+        function updateDifficultyStars(value) {
+            const starsContainer = document.getElementById('difficultyStars');
+            starsContainer.innerHTML = '';
+            
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('i');
+                star.className = `bi bi-star${i < value ? '-fill' : ''} ${i < value ? 'text-warning' : 'text-muted'}`;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        function updateCorrectAnswer(index) {
+            const answers = document.querySelectorAll('input[name^="Answers["][name$="].Content"]');
+            const isCorrectInputs = document.querySelectorAll('input[name^="Answers["][name$="].IsCorrect"]');
+            
+            isCorrectInputs.forEach((input, i) => {
+                input.value = (i === index).toString();
+            });
+        }
+
+        // Initialize the form
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleAnswerSection();
+            updateDifficultyStars(document.getElementById('DifficultyLevel').value);
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* Star Rating */
+        .star-rating {
+            display: inline-flex;
+            flex-direction: row-reverse;
+            font-size: 1.5em;
+            justify-content: flex-end;
+            padding: 0 0.2em;
+            text-align: center;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            color: #ddd;
+            cursor: pointer;
+            padding: 0 0.1em;
+            transition: color 0.3s;
+        }
+
+        .star-rating input:checked ~ label {
+            color: #ffd700;
+        }
+
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ffd700;
+        }
+
+        .star-rating input:checked + label:hover,
+        .star-rating input:checked ~ label:hover,
+        .star-rating label:hover ~ input:checked ~ label,
+        .star-rating input:checked ~ label:hover ~ label {
+            color: #ffd900;
+        }
+    </style>
+} 

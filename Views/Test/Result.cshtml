@@ -1,0 +1,181 @@
+@model TestGenerator.Models.TestResult
+
+@{
+    ViewData["Title"] = "Резултати от теста";
+}
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+        <h3 class="mb-0">Резултати от теста: @Model.Test.Title</h3>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-primary">Оценка</h5>
+                        <h2 class="display-4 mb-0">@Model.Grade.ToString("F2")</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-success">Точки</h5>
+                        <h2 class="display-4 mb-0">@Model.Score / @Model.MaxScore</h2>
+                        <p class="text-muted mb-0">@Model.PercentageScore.ToString("F1")%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-info">Верни отговори</h5>
+                        <h2 class="display-4 mb-0">@Model.CorrectAnswersCount / @Model.TotalQuestionsCount</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert @(Model.PercentageScore >= 50 ? "alert-success" : "alert-danger")">
+            <h4 class="alert-heading">
+                @if (Model.PercentageScore >= 50)
+                {
+                    <i class="bi bi-check-circle-fill"></i>
+                }
+                else
+                {
+                    <i class="bi bi-x-circle-fill"></i>
+                }
+                Обратна връзка
+            </h4>
+            <p class="mb-0">@Model.Feedback</p>
+        </div>
+
+        <h4 class="mb-4">Детайлен преглед на отговорите</h4>
+
+        @foreach (var answer in Model.AnswerResults.OrderBy(ar => ar.Question.Id))
+        {
+            <div class="card mb-3 @(answer.IsCorrect ? "border-success" : "border-danger")">
+                <div class="card-header @(answer.IsCorrect ? "bg-success" : "bg-danger") bg-opacity-10">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge @(answer.IsCorrect ? "bg-success" : "bg-danger") me-2">
+                                @if (answer.IsCorrect)
+                                {
+                                    <i class="bi bi-check-lg"></i>
+                                }
+                                else
+                                {
+                                    <i class="bi bi-x-lg"></i>
+                                }
+                                @answer.Points точки
+                            </span>
+                            <span class="badge bg-secondary">@answer.Question.Category.Name</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">@answer.Question.Content</h5>
+
+                    @if (!string.IsNullOrEmpty(answer.Question.ImagePath))
+                    {
+                        <div class="mb-3">
+                            <img src="@answer.Question.ImagePath" alt="Question Image" class="img-fluid rounded" style="max-height: 200px" />
+                        </div>
+                    }
+
+                    @if (answer.Question.Type == TestGenerator.Models.QuestionType.MultipleChoice)
+                    {
+                        <div class="list-group">
+                            @foreach (var option in answer.Question.PossibleAnswers)
+                            {
+                                var isSelected = option.Id == answer.SelectedAnswerId;
+                                var isCorrect = option.IsCorrect;
+                                string itemClass = "";
+                                
+                                if (isSelected && isCorrect)
+                                {
+                                    itemClass = "list-group-item-success";
+                                }
+                                else if (isSelected && !isCorrect)
+                                {
+                                    itemClass = "list-group-item-danger";
+                                }
+                                else if (!isSelected && isCorrect)
+                                {
+                                    itemClass = "list-group-item-success bg-opacity-25";
+                                }
+
+                                <div class="list-group-item @itemClass">
+                                    <div class="d-flex align-items-center">
+                                        @if (isSelected)
+                                        {
+                                            <i class="bi bi-check-circle-fill me-2 @(isCorrect ? "text-success" : "text-danger")"></i>
+                                        }
+                                        else if (isCorrect)
+                                        {
+                                            <i class="bi bi-check-circle me-2 text-success"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-circle me-2"></i>
+                                        }
+                                        @option.Content
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Вашият отговор:</label>
+                            <div class="p-3 rounded @(answer.IsCorrect ? "bg-success" : "bg-danger") bg-opacity-10">
+                                @(string.IsNullOrEmpty(answer.SubmittedAnswer) ? "Не е даден отговор" : answer.SubmittedAnswer)
+                            </div>
+                        </div>
+
+                        @if (!answer.IsCorrect)
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Верен отговор:</label>
+                                <div class="p-3 rounded bg-success bg-opacity-10">
+                                    @answer.Question.CorrectAnswer
+                                </div>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(answer.FeedbackNotes))
+                        {
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i> @answer.FeedbackNotes
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Обратно към тестовете
+            </a>
+            <a asp-action="Take" asp-route-id="@Model.TestId" class="btn btn-primary">
+                <i class="bi bi-arrow-repeat"></i> Опитай отново
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .display-4 {
+            font-size: 2.5rem;
+        }
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+    </style>
+} 

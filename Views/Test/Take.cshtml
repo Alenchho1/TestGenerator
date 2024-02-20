@@ -1,0 +1,167 @@
+@model TestGenerator.ViewModels.TestSubmissionViewModel
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h3 class="mb-0">@Model.Title</h3>
+        <div id="timer" class="h4 mb-0">
+            <i class="bi bi-clock"></i> <span id="timeLeft"></span>
+        </div>
+    </div>
+    <div class="card-body">
+        <form asp-controller="Test" asp-action="Submit" method="post" id="testForm">
+            <div asp-validation-summary="All" class="alert alert-danger"></div>
+            
+            <input type="hidden" asp-for="TestId" />
+            <input type="hidden" asp-for="StartTime" />
+            <input type="hidden" asp-for="TimeLimit" />
+            <input type="hidden" asp-for="Title" />
+
+            @if (Model.Questions != null && Model.Questions.Any())
+            {
+                for (int i = 0; i < Model.Questions.Count; i++)
+                {
+                    var question = Model.Questions[i];
+                    <div class="card mb-4 question-card">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Въпрос @(i + 1)</h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <input type="hidden" asp-for="Questions[i].QuestionId" />
+                            <input type="hidden" asp-for="Questions[i].Type" />
+                            <input type="hidden" asp-for="Questions[i].Content" />
+                            <input type="hidden" asp-for="Questions[i].ImagePath" />
+
+                            <p class="card-text mb-4">@question.Content</p>
+
+                            @if (!string.IsNullOrEmpty(question.ImagePath))
+                            {
+                                <div class="mb-3">
+                                    <img src="@Url.Content(question.ImagePath)" alt="Question Image" class="img-fluid" />
+                                </div>
+                            }
+
+                            @if (question.Type == "MultipleChoice")
+                            {
+                                <div class="list-group">
+                                    @if (question.PossibleAnswers != null)
+                                    {
+                                        foreach (var answer in question.PossibleAnswers)
+                                        {
+                                            <label class="list-group-item">
+                                                <div class="form-check">
+                                                    <input class="form-check-input answer-input" type="radio" 
+                                                           asp-for="Questions[i].SubmittedAnswer"
+                                                           value="@answer.Id" />
+                                                    <span class="form-check-label">@answer.Content</span>
+                                                </div>
+                                            </label>
+                                        }
+                                    }
+                                </div>
+                                <span asp-validation-for="Questions[i].SubmittedAnswer" class="text-danger"></span>
+                            }
+                            else
+                            {
+                                <div class="form-group">
+                                    <textarea asp-for="Questions[i].SubmittedAnswer"
+                                              class="form-control answer-input" rows="3" 
+                                              placeholder="Въведете вашия отговор тук..."></textarea>
+                                    <span asp-validation-for="Questions[i].SubmittedAnswer" class="text-danger"></span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> Няма налични въпроси за този тест.
+                </div>
+            }
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Прекрати теста
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> Предай теста
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startTime = new Date('@Model.StartTime.ToString("yyyy-MM-ddTHH:mm:ss")');
+            const timeLimit = @Model.TimeLimit;
+            const endTime = new Date(startTime.getTime() + timeLimit * 60000);
+            
+            function updateTimer() {
+                const now = new Date();
+                const timeLeft = endTime - now;
+                
+                if (timeLeft <= 0) {
+                    document.getElementById('testForm').submit();
+                    return;
+                }
+                
+                const minutes = Math.floor(timeLeft / 60000);
+                const seconds = Math.floor((timeLeft % 60000) / 1000);
+                document.getElementById('timeLeft').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        });
+
+        // Form validation
+        const form = document.getElementById('testForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const questions = document.querySelectorAll('.question-card');
+            let isValid = true;
+            let firstInvalid = null;
+
+            questions.forEach(function(questionCard) {
+                const inputs = questionCard.querySelectorAll('.answer-input');
+                let questionAnswered = false;
+
+                inputs.forEach(function(input) {
+                    if (input.type === 'radio' && input.checked) {
+                        questionAnswered = true;
+                    } else if (input.type === 'textarea' && input.value.trim() !== '') {
+                        questionAnswered = true;
+                    }
+                });
+
+                if (!questionAnswered) {
+                    isValid = false;
+                    questionCard.classList.add('border-danger');
+                    if (!firstInvalid) firstInvalid = questionCard;
+                } else {
+                    questionCard.classList.remove('border-danger');
+                }
+            });
+
+            if (!isValid) {
+                alert('Моля, отговорете на всички въпроси преди да предадете теста.');
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            // If all validations pass, submit the form
+            form.submit();
+        });
+    </script>
+} 

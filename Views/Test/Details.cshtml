@@ -1,0 +1,212 @@
+@model TestGenerator.Models.Test
+
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">@Model.Title</h1>
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="text-muted mt-2">@Model.Description</p>
+        }
+    </div>
+    <div class="btn-group">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Назад
+        </a>
+        <a asp-action="Take" asp-route-id="@Model.Id" class="btn btn-primary">
+            <i class="bi bi-play-circle"></i> Започни теста
+        </a>
+        <button type="button" class="btn btn-outline-info" onclick="toggleQuestions()">
+            <i class="bi bi-eye"></i> Преглед на въпросите
+        </button>
+        <button onclick="window.print()" class="btn btn-outline-primary">
+            <i class="bi bi-printer"></i> Принтирай
+        </button>
+    </div>
+</div>
+
+<div class="alert alert-warning preview-warning" style="display: none;">
+    <i class="bi bi-exclamation-triangle"></i>
+    <strong>Внимание!</strong> Ако прегледате въпросите, тестът ще бъде маркиран като видян и няма да можете да го предадете за оценяване.
+    <button type="button" class="btn-close" onclick="hideWarning()"></button>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-clock fs-4 me-2 text-primary"></i>
+                    <div>
+                        <small class="text-muted d-block">Време за решаване</small>
+                        <strong>@Model.TimeLimit минути</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-trophy fs-4 me-2 text-warning"></i>
+                    <div>
+                        <small class="text-muted d-block">Общо точки</small>
+                        <strong>@Model.TotalPoints точки</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-star fs-4 me-2 text-info"></i>
+                    <div>
+                        <small class="text-muted d-block">Ниво на трудност</small>
+                        <div>
+                            @for (int i = 0; i < Model.DifficultyLevel; i++)
+                            {
+                                <i class="bi bi-star-fill text-warning"></i>
+                            }
+                            @for (int i = Model.DifficultyLevel; i < 5; i++)
+                            {
+                                <i class="bi bi-star text-muted"></i>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-calendar3 fs-4 me-2 text-success"></i>
+                    <div>
+                        <small class="text-muted d-block">Създаден на</small>
+                        <strong>@Model.CreatedAt.ToString("dd.MM.yyyy")</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="questions" style="filter: blur(5px); pointer-events: none;">
+    @foreach (var testQuestion in Model.TestQuestions.OrderBy(tq => tq.OrderNumber))
+    {
+        var question = testQuestion.Question;
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-primary me-2">Въпрос @(testQuestion.OrderNumber)</span>
+                        <span class="badge bg-secondary me-2">@question.Category.Name</span>
+                        <span class="badge bg-success">@question.Points точки</span>
+                    </div>
+                    <small class="text-muted">
+                        @if (!string.IsNullOrEmpty(question.Keywords))
+                        {
+                            <i class="bi bi-tags"></i>
+                            @string.Join(", ", question.Keywords.Split(',').Select(k => k.Trim()))
+                        }
+                    </small>
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="card-text mb-4">@question.Content</p>
+
+                @if (!string.IsNullOrEmpty(question.ImagePath))
+                {
+                    <div class="mb-4">
+                        <img src="@question.ImagePath" alt="Изображение към въпроса" class="img-fluid rounded" style="max-height: 300px" />
+                    </div>
+                }
+
+                @if (question.Type == TestGenerator.Models.QuestionType.MultipleChoice)
+                {
+                    <div class="list-group">
+                        @foreach (var answer in question.PossibleAnswers)
+                        {
+                            <div class="list-group-item">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" disabled>
+                                    <label class="form-check-label">
+                                        @answer.Content
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="border rounded p-3 bg-light">
+                        <p class="mb-0 text-muted"><i class="bi bi-pencil"></i> Място за отговор...</p>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+<div class="overlay-message text-center py-5">
+    <h3><i class="bi bi-lock"></i> Въпросите са скрити</h3>
+    <p class="text-muted">Натиснете "Започни теста" за да започнете или "Преглед на въпросите" за да ги видите</p>
+</div>
+
+@section Styles {
+    <style>
+        .questions {
+            transition: filter 0.3s ease-in-out;
+            position: relative;
+        }
+        
+        .overlay-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        @@media print {
+            .btn-group, footer, header, .overlay-message {
+                display: none !important;
+            }
+            .questions {
+                filter: none !important;
+            }
+            .card {
+                break-inside: avoid;
+            }
+            .shadow-sm {
+                box-shadow: none !important;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        let questionsVisible = false;
+        
+        function toggleQuestions() {
+            if (!questionsVisible) {
+                document.querySelector('.preview-warning').style.display = 'block';
+                document.querySelector('.questions').style.filter = 'none';
+                document.querySelector('.questions').style.pointerEvents = 'auto';
+                document.querySelector('.overlay-message').style.display = 'none';
+                questionsVisible = true;
+                
+                // Деактивиране на бутона за започване на теста
+                const takeTestBtn = document.querySelector('a[asp-action="Take"]');
+                takeTestBtn.classList.add('disabled');
+                takeTestBtn.style.pointerEvents = 'none';
+                takeTestBtn.title = 'Тестът не може да бъде започнат след преглед на въпросите';
+            }
+        }
+        
+        function hideWarning() {
+            document.querySelector('.preview-warning').style.display = 'none';
+        }
+    </script>
+} 

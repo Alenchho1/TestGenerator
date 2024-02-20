@@ -1,0 +1,96 @@
+@model IEnumerable<TestGenerator.Models.Test>
+
+@{
+    ViewData["Title"] = "Моите тестове";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-file-text"></i> Моите тестове</h1>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Направи нов тест
+    </a>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach (var test in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="h4 mb-0">@test.Title</h3>
+                        <span class="badge bg-light text-primary">@test.TestQuestions?.Count въпроса</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(test.Description))
+                    {
+                        <p class="card-text">@test.Description</p>
+                    }
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock me-2 text-primary"></i>
+                            <span>@test.TimeLimit минути</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">Трудност:</span>
+                            @for (int i = 0; i < test.DifficultyLevel; i++)
+                            {
+                                <i class="bi bi-star-fill text-warning"></i>
+                            }
+                            @for (int i = test.DifficultyLevel; i < 5; i++)
+                            {
+                                <i class="bi bi-star text-muted"></i>
+                            }
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-calendar3 me-2 text-primary"></i>
+                            <span>@test.CreatedAt.ToString("dd.MM.yyyy")</span>
+                        </div>
+                        <span class="badge bg-success">
+                            <i class="bi bi-trophy"></i> @test.TotalPoints точки
+                        </span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Details" asp-route-id="@test.Id" class="btn btn-primary">
+                            <i class="bi bi-eye"></i> Виж теста
+                        </a>
+                        <button type="button" class="btn btn-danger" onclick="confirmDelete(@test.Id)">
+                            <i class="bi bi-trash"></i> Изтрий
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-journal-x display-1 text-muted"></i>
+        <h3 class="mt-3">Няма тестове</h3>
+        <p class="text-muted">Хайде направи си първия тест!</p>
+    </div>
+}
+
+<form id="deleteForm" asp-action="Delete" method="post">
+    <input type="hidden" id="testId" name="id" value="" />
+</form>
+
+@section Scripts {
+    <script>
+        function confirmDelete(id) {
+            if (confirm('Сигурен ли си, че искаш да изтриеш този тест? Това действие не може да бъде отменено.')) {
+                document.getElementById('testId').value = id;
+                document.getElementById('deleteForm').submit();
+            }
+        }
+    </script>
+} 

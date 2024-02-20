@@ -1,0 +1,138 @@
+﻿@{
+    ViewData["Title"] = "Добре дошли в Генератора на тестове";
+}
+
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 mb-4" style="color: var(--primary-color);">Генератор на тестове</h1>
+            <p class="lead" style="font-size: 1.4rem; color: var(--text-color);">
+                Направи си тестове бързо и лесно
+            </p>
+        </div>
+    </div>
+
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body text-center p-5">
+                        <i class="bi bi-file-text display-1 mb-4" style="color: var(--primary-color);"></i>
+                        <h2 class="card-title h3 mb-4">Нов тест</h2>
+                        <p class="card-text mb-4" style="font-size: 1.2rem;">
+                            Направи си нов тест за минутки
+                        </p>
+                        <a asp-controller="Test" asp-action="Create" class="btn btn-primary btn-lg">
+                            <i class="bi bi-plus-circle me-2"></i>Направи тест
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body text-center p-5">
+                        <i class="bi bi-collection display-1 mb-4" style="color: var(--primary-color);"></i>
+                        <h2 class="card-title h3 mb-4">Моите тестове</h2>
+                        <p class="card-text mb-4" style="font-size: 1.2rem;">
+                            Виж си всички тестове тук
+                        </p>
+                        <a asp-controller="Test" asp-action="Index" class="btn btn-primary btn-lg">
+                            <i class="bi bi-folder me-2"></i>Виж тестовете
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body text-center p-5">
+                        <i class="bi bi-journal-check display-1 mb-4" style="color: var(--primary-color);"></i>
+                        <h2 class="mb-4">Хайде започвай!</h2>
+                        <p class="lead mb-5" style="font-size: 1.3rem;">
+                            Направи си регистрация и почвай да правиш тестове!
+                        </p>
+                        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                            <a asp-area="Identity" asp-page="/Account/Register" 
+                               class="btn btn-primary btn-lg px-5 py-3" style="font-size: 1.2rem;">
+                                <i class="bi bi-person-plus me-2"></i>Регистрация
+                            </a>
+                            <a asp-area="Identity" asp-page="/Account/Login" 
+                               class="btn btn-outline-primary btn-lg px-5 py-3" style="font-size: 1.2rem;">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Вход
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <div class="col">
+                <div class="card h-100 border-0 bg-transparent">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-lightning-charge display-3 mb-3" style="color: var(--primary-color);"></i>
+                        <h3 class="card-title h4 mb-3">Супер бързо</h3>
+                        <p class="card-text" style="font-size: 1.1rem;">
+                            Правиш си тест за нула време
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 border-0 bg-transparent">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-shield-check display-3 mb-3" style="color: var(--primary-color);"></i>
+                        <h3 class="card-title h4 mb-3">Сигурно е</h3>
+                        <p class="card-text" style="font-size: 1.1rem;">
+                            Само ти си виждаш тестовете
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100 border-0 bg-transparent">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-graph-up display-3 mb-3" style="color: var(--primary-color);"></i>
+                        <h3 class="card-title h4 mb-3">Резултати</h3>
+                        <p class="card-text" style="font-size: 1.1rem;">
+                            Виж как се справят другите
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .display-1 {
+            font-size: 4rem;
+        }
+
+        .display-3 {
+            font-size: 3rem;
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+        }
+
+        .btn i {
+            vertical-align: middle;
+        }
+    </style>
+}

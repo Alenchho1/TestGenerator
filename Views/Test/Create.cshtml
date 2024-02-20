@@ -1,0 +1,97 @@
+@model TestGenerator.ViewModels.TestGenerationViewModel
+
+@{
+    ViewData["Title"] = "Създаване на тест";
+}
+
+<div class="row justify-content-center mb-4">
+    <div class="col-md-8">
+        <div class="d-flex justify-content-between gap-2">
+            <a asp-controller="Category" asp-action="Create" class="btn btn-success flex-grow-1">
+                <i class="bi bi-folder-plus"></i> Нова категория
+            </a>
+            <a asp-controller="Question" asp-action="Create" class="btn btn-info flex-grow-1">
+                <i class="bi bi-question-circle"></i> Нов въпрос
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0"><i class="bi bi-plus-circle"></i> Създаване на нов тест</h2>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Заглавие на теста</label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Описание</label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="NumberOfQuestions" class="form-label">Брой въпроси</label>
+                        <input asp-for="NumberOfQuestions" class="form-control" type="number" min="1" max="50" />
+                        <span asp-validation-for="NumberOfQuestions" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TimeLimit" class="form-label">Време за решаване (минути)</label>
+                        <input asp-for="TimeLimit" class="form-control" type="number" min="5" max="120" />
+                        <span asp-validation-for="TimeLimit" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DifficultyLevel" class="form-label">Ниво на трудност</label>
+                        <select asp-for="DifficultyLevel" class="form-select">
+                            <option value="">Избери трудност</option>
+                            <option value="1">Лесно</option>
+                            <option value="2">По-лесно</option>
+                            <option value="3">Средно</option>
+                            <option value="4">По-трудно</option>
+                            <option value="5">Трудно</option>
+                        </select>
+                        <span asp-validation-for="DifficultyLevel" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Категории</label>
+                        <div class="row row-cols-1 row-cols-md-2 g-3">
+                            @foreach (var category in ViewBag.Categories)
+                            {
+                                <div class="col">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="CategoryIds" value="@category.Id" 
+                                               class="form-check-input" id="category_@category.Id" />
+                                        <label class="form-check-label" for="category_@category.Id">
+                                            @category.Name (@category.QuestionCount въпроса)
+                                        </label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Назад
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-magic"></i> Създай тест
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 

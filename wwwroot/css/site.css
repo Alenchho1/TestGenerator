@@ -1,0 +1,248 @@
+/* Custom Variables */
+:root {
+    --primary-color: #8B0000;
+    --primary-hover: #A52A2A;
+    --secondary-color: #704214;
+    --secondary-hover: #8B4513;
+    --success-color: #2F4F4F;
+    --warning-color: #CD853F;
+    --danger-color: #8B0000;
+    --bg-color: #FFF8E7;
+    --card-bg: #FFFFFF;
+    --text-color: #000000;
+    --text-muted: #555555;
+    --border-color: #8B4513;
+}
+
+/* General Styles */
+html {
+    font-size: 16px;
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Georgia', serif;
+    margin-bottom: 60px;
+    font-size: 1.1rem;
+}
+
+/* Navbar Styles */
+.navbar {
+    background: var(--primary-color) !important;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.navbar-brand {
+    color: #FFFFFF !important;
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+.navbar-brand i {
+    color: #FFFFFF;
+}
+
+.nav-link {
+    color: #FFFFFF !important;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.nav-link:hover {
+    color: var(--warning-color) !important;
+}
+
+/* Card Styles */
+.card {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 255, 157, 0.2);
+}
+
+.card-header {
+    background: var(--primary-color);
+    color: #FFFFFF;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.card-body {
+    color: var(--text-color);
+}
+
+/* Button Styles */
+.btn {
+    font-size: 1.1rem;
+    padding: 0.6rem 1.5rem;
+}
+
+.btn-primary {
+    background: var(--primary-color);
+    color: #FFFFFF;
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background: var(--primary-hover);
+    color: #FFFFFF;
+}
+
+.btn-success {
+    background: var(--success-color);
+    color: #FFFFFF;
+    border-color: var(--success-color);
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: #FFFFFF;
+    border-color: var(--danger-color);
+}
+
+/* Form Styles */
+.form-control {
+    background: #FFFFFF;
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.form-control:focus {
+    background: #FFFFFF;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(139, 0, 0, 0.3);
+}
+
+.form-label {
+    color: var(--text-color);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+/* Table Styles */
+.table {
+    background: var(--card-bg);
+    font-size: 1.1rem;
+}
+
+.table th {
+    background: var(--primary-color);
+    color: #FFFFFF;
+    font-weight: 700;
+}
+
+.table td {
+    color: var(--text-color);
+}
+
+/* Alert Styles */
+.alert {
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.alert-success {
+    background: #E8F5E9;
+    border-color: #4CAF50;
+    color: #2E7D32;
+}
+
+.alert-danger {
+    background: #FFEBEE;
+    border-color: #F44336;
+    color: #C62828;
+}
+
+/* Footer Styles */
+.footer {
+    background: var(--primary-color);
+    color: #FFFFFF;
+    border-top: 2px solid var(--border-color);
+    font-size: 1rem;
+}
+
+/* Badge Styles */
+.badge {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+}
+
+/* List Group Styles */
+.list-group-item {
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 1.1rem;
+}
+
+.list-group-item:hover {
+    background: #F5F5F5;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-hover);
+}
+
+/* Text Styles */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+h1 { font-size: 2.2rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.3rem; }
+h5 { font-size: 1.2rem; }
+h6 { font-size: 1.1rem; }
+
+p {
+    color: var(--text-color);
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .btn {
+        padding: 0.5rem 1rem;
+    }
+}

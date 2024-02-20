@@ -1,0 +1,153 @@
+@model TestGenerator.ViewModels.QuestionViewModel
+
+@{
+    ViewData["Title"] = "Създаване на въпрос";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0"><i class="bi bi-plus-circle"></i> Нов въпрос</h2>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" id="questionForm" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">Текст на въпроса</label>
+                        <textarea asp-for="Content" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Content" class="text-danger"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label asp-for="CategoryId" class="form-label">Категория</label>
+                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+                                <option value="">Избери категория</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="Points" class="form-label">Точки</label>
+                            <input asp-for="Points" class="form-control" type="number" min="1" max="100" />
+                            <span asp-validation-for="Points" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="DifficultyLevel" class="form-label">Ниво на трудност</label>
+                            <select asp-for="DifficultyLevel" class="form-select">
+                                <option value="">Избери трудност</option>
+                                <option value="1">Лесно</option>
+                                <option value="2">По-лесно</option>
+                                <option value="3">Средно</option>
+                                <option value="4">По-трудно</option>
+                                <option value="5">Трудно</option>
+                            </select>
+                            <span asp-validation-for="DifficultyLevel" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Keywords" class="form-label">Ключови думи</label>
+                        <input asp-for="Keywords" class="form-control" placeholder="Въведи ключови думи, разделени със запетая" />
+                        <span asp-validation-for="Keywords" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Image" class="form-label">Картинка към въпроса</label>
+                        <input asp-for="Image" class="form-control" type="file" accept="image/*" />
+                        <small class="text-muted">Качи картинка, ако въпросът изисква визуален контекст (по желание)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Тип на въпроса</label>
+                        <div class="d-flex gap-3 mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="Type" id="multipleChoice" 
+                                       value="@TestGenerator.Models.QuestionType.MultipleChoice" checked>
+                                <label class="form-check-label" for="multipleChoice">
+                                    Избор от няколко
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="Type" id="openEnded" 
+                                       value="@TestGenerator.Models.QuestionType.OpenEnded">
+                                <label class="form-check-label" for="openEnded">
+                                    Свободен отговор
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="multipleChoiceSection">
+                            <h5 class="mb-3">Възможни отговори</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    @for (int i = 0; i < 4; i++)
+                                    {
+                                        <div class="mb-3">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" 
+                                                       name="Answers[@i].Content" placeholder="Отговор @(i + 1)" />
+                                                <div class="input-group-text">
+                                                    <input class="form-check-input mt-0" type="radio" 
+                                                           name="correctAnswerIndex" value="@i" 
+                                                           @(i == 0 ? "checked" : "") />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="openEndedSection" style="display: none;">
+                            <h5 class="mb-3">Верен отговор</h5>
+                            <div class="card">
+                                <div class="card-body">
+                                    <textarea asp-for="CorrectAnswer" class="form-control" rows="3" 
+                                              placeholder="Въведи верния отговор за този въпрос"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Назад
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Създай въпрос
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const multipleChoice = document.getElementById('multipleChoice');
+            const openEnded = document.getElementById('openEnded');
+            const multipleChoiceSection = document.getElementById('multipleChoiceSection');
+            const openEndedSection = document.getElementById('openEndedSection');
+
+            function toggleSections() {
+                if (multipleChoice.checked) {
+                    multipleChoiceSection.style.display = 'block';
+                    openEndedSection.style.display = 'none';
+                } else {
+                    multipleChoiceSection.style.display = 'none';
+                    openEndedSection.style.display = 'block';
+                }
+            }
+
+            multipleChoice.addEventListener('change', toggleSections);
+            openEnded.addEventListener('change', toggleSections);
+        });
+    </script>
+} 

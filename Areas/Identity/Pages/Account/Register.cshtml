@@ -1,0 +1,88 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Регистрация";
+}
+
+<div class="row justify-content-center my-5">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white text-center py-3">
+                <h2 class="card-title mb-0">
+                    <i class="bi bi-person-plus"></i> Създаване на нов акаунт
+                </h2>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" asp-route-returnUrl="@Model.ReturnUrl" class="needs-validation" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.FirstName" class="form-label">Име</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input asp-for="Input.FirstName" class="form-control" placeholder="Въведете вашето име" required />
+                        </div>
+                        <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.LastName" class="form-label">Фамилия</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person"></i></span>
+                            <input asp-for="Input.LastName" class="form-control" placeholder="Въведете вашата фамилия" required />
+                        </div>
+                        <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.Email" class="form-label">Имейл адрес</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input asp-for="Input.Email" class="form-control" placeholder="име@пример.com" required />
+                        </div>
+                        <span asp-validation-for="Input.Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.Password" class="form-label">Парола</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key"></i></span>
+                            <input asp-for="Input.Password" class="form-control" placeholder="Създайте силна парола" required />
+                        </div>
+                        <span asp-validation-for="Input.Password" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Input.ConfirmPassword" class="form-label">Потвърдете паролата</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+                            <input asp-for="Input.ConfirmPassword" class="form-control" placeholder="Въведете паролата отново" required />
+                        </div>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus"></i> Регистрация
+                        </button>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="text-center">
+                        <p class="mb-0">
+                            Вече имате акаунт? 
+                            <a class="text-decoration-none" asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">
+                                <i class="bi bi-box-arrow-in-right"></i> Вход
+                            </a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
